@@ -10,4 +10,9 @@ public class BarberiaApplication {
         SpringApplication.run(BarberiaApplication.class, args);
     }
 
+<<<<<<< HEAD
 }//ndowenfowejowefw
+=======
+}
+//nice try
+>>>>>>> main
