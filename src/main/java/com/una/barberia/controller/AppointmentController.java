@@ -1,6 +1,7 @@
 package com.una.barberia.controller;
 
 
+import com.una.barberia.BarberiaApplication;
 import com.una.barberia.model.*;
 import com.una.barberia.service.AppointmentService;
 import jakarta.validation.Valid;
@@ -10,6 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
+@RestController
+@RequestMapping("/api/appointments")
+@CrossOrigin(origins = "*")
+public class AppointmentController {
+}
 private final AppointmentService service;
 
 public AppointmentController(AppointmentService service) {
