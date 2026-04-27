@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barbería – Gestión de Citas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            background:
+                    linear-gradient(rgba(10, 10, 20, 0.62), rgba(10, 10, 20, 0.62)),
+                    url('https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=1600&q=80') center/cover no-repeat fixed;
+            color: #eee;
+        }
+
+        header {
+            text-align: center;
+            padding: 3.5rem 1rem 2rem;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            color: rgba(255,255,255,0.55);
+            margin-top: .4rem;
+            font-size: .95rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .divider {
+            width: 60px;
+            height: 2px;
+            background: #c8a96e;
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto 4rem;
+            padding: 0 1.25rem;
+            display: grid;
+            gap: 1.75rem;
+        }
+
+        .card {
+            background: rgba(12, 12, 24, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 14px;
+            padding: 2rem;
+            border: 1px solid rgba(200, 169, 110, 0.2);
+        }
+
+        .card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: #c8a96e;
+            margin-bottom: 1.4rem;
+            letter-spacing: .5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: .4rem; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        label {
+            font-size: .78rem;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        input {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(200, 169, 110, 0.25);
+            border-radius: 7px;
+            padding: .65rem .9rem;
+            color: #eee;
+            font-size: .95rem;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color .2s, background .2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #c8a96e;
+            background: rgba(255,255,255,0.09);
+        }
+
+        input::placeholder { color: rgba(255,255,255,0.22); }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .95rem;
+            padding: .7rem 1.4rem;
+            transition: opacity .2s, transform .1s;
+        }
+
+        button:active { transform: scale(.97); }
+        button:disabled { opacity: .45; cursor: not-allowed; }
+
+        .btn-primary {
+            background: #c8a96e;
+            color: #0c0c18;
+            width: 100%;
+            margin-top: .9rem;
+            font-weight: 500;
+            letter-spacing: .5px;
+        }
+
+        .btn-primary:hover:not(:disabled) { opacity: .88; }
+
+        .btn-cancel {
+            background: rgba(180, 60, 60, 0.75);
+            color: #fff;
+            padding: .3rem .75rem;
+            font-size: .78rem;
+            border-radius: 5px;
+        }
+
+        .btn-cancel:hover { opacity: .8; }
+
+        #toast {
+            position: fixed;
+            top: 1.2rem;
+            right: 1.2rem;
+            z-index: 999;
+            max-width: 360px;
+            padding: .9rem 1.2rem;
+            border-radius: 8px;
+            font-size: .88rem;
+            display: none;
+        }
+
+        .toast-success { background: #27ae60; color: #fff; }
+        .toast-error   { background: #a32d2d; color: #fff; }
+        .toast-info    { background: #185fa5; color: #fff; }
+
+        .filter-bar {
+            display: flex;
+            gap: .75rem;
+            margin-bottom: 1.1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input { flex: 1; min-width: 180px; }
+
+        .btn-sm {
+            background: rgba(255,255,255,0.07);
+            color: #ccc;
+            border: 1px solid rgba(200,169,110,0.25);
+            padding: .55rem 1rem;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-sm:hover { background: rgba(200,169,110,0.15); color: #c8a96e; }
+
+        #appointments-list { display: grid; gap: .75rem; }
+
+        .appointment-card {
+            background: rgba(255,255,255,0.04);
+            border-radius: 9px;
+            padding: 1rem 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            border-left: 3px solid #c8a96e;
+        }
+
+        .appointment-card.cancelada { border-left-color: #444; opacity: .55; }
+
+        .appt-info { flex: 1; }
+        .appt-info strong { display: block; font-size: .98rem; margin-bottom: .3rem; color: #fff; }
+        .appt-meta { font-size: .78rem; color: rgba(255,255,255,0.45); line-height: 1.7; }
+
+        .badge {
+            display: inline-block;
+            padding: .15rem .6rem;
+            border-radius: 20px;
+            font-size: .7rem;
+            font-weight: 500;
+            letter-spacing: .5px;
+        }
+
+        .badge-reservada { background: rgba(39,174,96,0.2); color: #5dca8f; border: 1px solid rgba(39,174,96,0.35); }
+        .badge-cancelada { background: rgba(80,80,80,0.3); color: #888; border: 1px solid #444; }
+
+        .appt-actions { flex-shrink: 0; display: flex; align-items: center; gap: .5rem; }
+
+        #empty-msg { text-align: center; color: rgba(255,255,255,0.25); padding: 2rem; font-size: .9rem; }
+        .loading    { text-align: center; color: rgba(255,255,255,0.3); padding: 1rem; font-size: .9rem; }
+
+        @media (max-width: 560px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Barbería &mdash; Sistema de Citas</h1>
+    <p>Gestiona las reservas del barbero</p>
+    <div class="divider"></div>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Nueva Cita</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="clienteNombre">Nombre del cliente *</label>
+                <input type="text" id="clienteNombre" placeholder="Nombre Apellido" />
+            </div>
+            <div class="form-group">
+                <label for="clienteEmail">Email *</label>
+                <input type="email" id="clienteEmail" placeholder="nombre@email.com" />
+            </div>
+            <div class="form-group">
+                <label for="clienteTelefono">Teléfono (opcional)</label>
+                <input type="tel" id="clienteTelefono" placeholder="+506 8888-8888" />
+            </div>
+            <div class="form-group">
+                <label for="duracionMin">Duración en minutos (por defecto 30)</label>
+                <input type="number" id="duracionMin" placeholder="30" min="5" max="180" />
+            </div>
+            <div class="form-group full">
+                <label for="fechaHora">Fecha y hora *</label>
+                <input type="datetime-local" id="fechaHora" />
+            </div>
+        </div>
+        <button class="btn-primary" id="btnCrear" onclick="crearCita()">Reservar Cita</button>
+    </div>
+
+    <div class="card">
+        <h2>Lista de Citas</h2>
+        <div class="filter-bar">
+            <input type="email" id="filterEmail" placeholder="Filtrar por email..." />
+            <button class="btn-sm" onclick="cargarCitas()">Filtrar</button>
+            <button class="btn-sm" onclick="document.getElementById('filterEmail').value=''; cargarCitas()">Ver todas</button>
+        </div>
+        <div id="appointments-list">
+            <div class="loading">Cargando citas...</div>
+        </div>
+    </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+    const API = '/api/appointments';
+
+    function showToast(message, type = 'info', duration = 4000) {
+        const t = document.getElementById('toast');
+        t.textContent = message;
+        t.className = 'toast-' + type;
+        t.style.display = 'block';
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => { t.style.display = 'none'; }, duration);
+    }
+
+    function formatDateTime(iso) {
+        return new Date(iso).toLocaleString('es-CR', {
+            weekday: 'short', year: 'numeric', month: 'short',
+            day: '2-digit', hour: '2-digit', minute: '2-digit'
+        });
+    }
+
+    async function crearCita() {
+        const nombre   = document.getElementById('clienteNombre').value.trim();
+        const email    = document.getElementById('clienteEmail').value.trim();
+        const telefono = document.getElementById('clienteTelefono').value.trim();
+        const fecha    = document.getElementById('fechaHora').value;
+        const duracion = document.getElementById('duracionMin').value;
+
+        if (!nombre) { showToast('El nombre es obligatorio.', 'error'); return; }
+        if (!email)  { showToast('El email es obligatorio.', 'error'); return; }
+        if (!fecha)  { showToast('La fecha y hora son obligatorias.', 'error'); return; }
+        if (new Date(fecha) <= new Date()) { showToast('La fecha y hora deben ser en el futuro.', 'error'); return; }
+
+        const body = { clienteNombre: nombre, clienteEmail: email, fechaHora: fecha.slice(0, 16) + ':00' };
+        if (telefono) body.clienteTelefono = telefono;
+        if (duracion) body.duracionMin = parseInt(duracion, 10);
+
+        const btn = document.getElementById('btnCrear');
+        btn.disabled = true;
+        btn.textContent = 'Reservando...';
+
+        try {
+            const res  = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const data = await res.json();
+
+            if (res.status === 201) {
+                showToast('Cita creada para ' + data.clienteNombre + ' el ' + formatDateTime(data.fechaHora), 'success');
+                ['clienteNombre','clienteEmail','clienteTelefono','fechaHora','duracionMin'].forEach(id => document.getElementById(id).value = '');
+                cargarCitas();
+            } else if (res.status === 409) {
+                showToast('Conflicto: ' + (data.message || 'Solapamiento con otra cita.'), 'error', 6000);
+            } else if (res.status === 400) {
+                showToast(data.messages ? data.messages.join(' | ') : (data.message || 'Datos invalidos.'), 'error', 6000);
+            } else {
+                showToast('Error: ' + (data.message || 'No se pudo crear la cita.'), 'error');
+            }
+        } catch (err) {
+            showToast('Error de red: ' + err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Reservar Cita';
+        }
+    }
+
+    async function cargarCitas() {
+        const list  = document.getElementById('appointments-list');
+        list.innerHTML = '<div class="loading">Cargando...</div>';
+        const email = document.getElementById('filterEmail').value.trim();
+        const url   = email ? API + '?clienteEmail=' + encodeURIComponent(email) : API;
+
+        try {
+            const res   = await fetch(url);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const citas = await res.json();
+
+            if (!citas.length) { list.innerHTML = '<div id="empty-msg">No hay citas registradas.</div>'; return; }
+
+            citas.sort((a, b) => new Date(b.fechaHora) - new Date(a.fechaHora));
+            list.innerHTML = citas.map(c => `
+        <div class="appointment-card ${c.estado === 'CANCELADA' ? 'cancelada' : ''}">
+          <div class="appt-info">
+            <strong>${esc(c.clienteNombre)}</strong>
+            <div class="appt-meta">
+              ${esc(c.clienteEmail)}<br>
+              ${c.clienteTelefono ? esc(c.clienteTelefono) + '<br>' : ''}
+              ${formatDateTime(c.fechaHora)} &mdash; ${c.duracionMin} min
+            </div>
+          </div>
+          <div class="appt-actions">
+            <span class="badge badge-${c.estado.toLowerCase()}">${c.estado}</span>
+            ${c.estado === 'RESERVADA' ? '<button class="btn-cancel" onclick="cancelarCita(' + c.id + ')">Cancelar</button>' : ''}
+          </div>
+        </div>`).join('');
+        } catch (err) {
+            list.innerHTML = '<div id="empty-msg">Error al cargar: ' + err.message + '</div>';
+        }
+    }
+
+    async function cancelarCita(id) {
+        if (!confirm('Cancelar la cita #' + id + '?')) return;
+        try {
+            const res  = await fetch(API + '/' + id, { method: 'DELETE' });
+            const data = await res.json();
+            showToast(res.ok ? 'Cita #' + id + ' cancelada.' : (data.message || 'No se pudo cancelar.'), res.ok ? 'success' : 'error');
+            if (res.ok) cargarCitas();
+        } catch (err) {
+            showToast('Error de red: ' + err.message, 'error');
+        }
+    }
+
+    function esc(s) {
+        return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
+    }
+
+    document.getElementById('filterEmail').addEventListener('keydown', e => { if (e.key === 'Enter') cargarCitas(); });
+    cargarCitas();
+</script>
+</body>
+</html>
