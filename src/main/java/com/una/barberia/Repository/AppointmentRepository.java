@@ -1,6 +1,4 @@
-package com.una.barberia.Service;
-
-package com.una.barberia.Appointment;
+package com.una.barberia.Repository;
 
 import com.una.barberia.model.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,5 +30,4 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     );
 }
 
-//ojala se arregle estoooo
-
+//ojala se arregle x2
